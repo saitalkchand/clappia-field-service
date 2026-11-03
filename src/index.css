@@ -1,0 +1,108 @@
+/* Clappia brand tokens. Logo blue #3599E2, logo green #0CAE5A. */
+:root {
+  --brand-blue: #3599e2;
+  --brand-blue-strong: #1f7fc8;
+  --brand-blue-deep: #0f5e9c;
+  --brand-blue-tint: #eaf4fd;
+  --brand-blue-soft: #a8d8fa;
+  --brand-green: #0cae5a;
+  --brand-green-strong: #08914a;
+  --brand-green-tint: #e6f7ee;
+
+  --bg: #f3f7fb;
+  --surface: #ffffff;
+  --surface-2: #f7fafd;
+  --border: #e2e9f1;
+  --border-strong: #cbd7e3;
+  --text: #0f2a43;
+  --text-2: #4a6278;
+  --muted: #74889c;
+  --focus: #3599e2;
+
+  /* Severity (validated for CVD separation on light and dark surfaces) */
+  --sev-critical: #c8281e;
+  --sev-major: #d97706;
+  --sev-minor: #5b8def;
+  --sev-na: #9aa8b6;
+  --danger: #c8281e;
+
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 1px 2px rgb(15 42 67 / 6%), 0 4px 16px rgb(15 42 67 / 5%);
+  --font: Inter, 'Segoe UI', system-ui, sans-serif;
+  --font-display: Poppins, Inter, 'Segoe UI', sans-serif;
+
+  color-scheme: light;
+  font-family: var(--font);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root[data-theme='dark'] {
+  --brand-blue: #4ba8ec;
+  --brand-blue-strong: #6bb8f0;
+  --brand-blue-deep: #a8d8fa;
+  --brand-blue-tint: #15304a;
+  --brand-green: #20c36f;
+  --brand-green-strong: #3fd283;
+  --brand-green-tint: #0f3324;
+
+  --bg: #0b1521;
+  --surface: #12202f;
+  --surface-2: #172838;
+  --border: #24384c;
+  --border-strong: #335069;
+  --text: #e6eef6;
+  --text-2: #a9bccd;
+  --muted: #7f94a8;
+  --shadow: 0 1px 2px rgb(0 0 0 / 30%);
+
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+  background: var(--brand-blue-tint);
+  color: var(--brand-blue-deep);
+  padding: 1px 6px;
+  border-radius: 5px;
+}

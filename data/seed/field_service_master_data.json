@@ -1,4 +1,4 @@
-var e=`{
+{
   "sourceWorkbook": "Copy of PM Team - Snags  Consumables - Jay.xlsx",
   "purpose": "Master/reference data extracted from the workbook for a Field Service Management application. CO transactional records are not exported here except for distinct dropdown values.",
   "masters": {
@@ -284,8 +284,8 @@ var e=`{
         ]
       },
       {
-        "code": "Area\\\\region",
-        "label": "Area\\\\Region",
+        "code": "Area\\region",
+        "label": "Area\\Region",
         "options": [
           "DXB",
           "NE",
@@ -296,13 +296,13 @@ var e=`{
         ]
       },
       {
-        "code": "SITE ID\\\\Location",
-        "label": "Site Id\\\\Location",
+        "code": "SITE ID\\Location",
+        "label": "Site Id\\Location",
         "options": []
       },
       {
-        "code": "Site \\\\Room Type",
-        "label": "Site \\\\Room Type",
+        "code": "Site \\Room Type",
+        "label": "Site \\Room Type",
         "options": [
           "RTS",
           "RTR",
@@ -336,8 +336,8 @@ var e=`{
         "options": []
       },
       {
-        "code": "DATE DONE\\\\Achieved",
-        "label": "Date Done\\\\Achieved",
+        "code": "DATE DONE\\Achieved",
+        "label": "Date Done\\Achieved",
         "options": []
       },
       {
@@ -444,8 +444,8 @@ var e=`{
         "options": []
       },
       {
-        "code": "BATTERY Status\\\\ Mobile",
-        "label": "Battery Status\\\\ Mobile",
+        "code": "BATTERY Status\\ Mobile",
+        "label": "Battery Status\\ Mobile",
         "options": []
       },
       {
@@ -5516,7 +5516,7 @@ var e=`{
       ],
       "Timeline": [
         "2023-03-22T00:00:00",
-        "\`",
+        "`",
         "Close by EM team",
         "SRT team"
       ],
@@ -5710,4 +5710,4 @@ var e=`{
     "Use siteId/workOrderId as structured identifiers in the application; this file does not create site master records from every CO transaction.",
     "Review conflicting or blank values before production import."
   ]
-}`;export{e as default};
+}
