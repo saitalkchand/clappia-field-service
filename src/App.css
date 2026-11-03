@@ -2677,6 +2677,18 @@ td.row-actions {
   text-align: center;
 }
 
+.login-switch {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+  text-align: center;
+  color: var(--muted);
+}
+
 .loading.full {
   min-height: 100vh;
   justify-content: center;

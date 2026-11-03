@@ -39,6 +39,7 @@ export const api = {
   me: () => request<Session>('auth/me', undefined, { quiet401: true }),
   login: (username: string, password: string) => request<Session>('auth/login', post({ username, password }), { quiet401: true }),
   setup: (body: { username: string; name: string; password: string }) => request<Session>('auth/setup', post(body), { quiet401: true }),
+  signup: (body: { username: string; name: string; password: string }) => request<Session>('auth/signup', post(body), { quiet401: true }),
   logout: () => request<{ ok: true }>('auth/logout', post({}), { quiet401: true }),
   changePassword: (currentPassword: string, newPassword: string) => request<{ ok: true }>('auth/password', post({ currentPassword, newPassword })),
 

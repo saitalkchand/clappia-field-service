@@ -2,7 +2,7 @@ import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypt
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
 import { dirname, resolve } from 'node:path'
-import { USERS_SHEET, userFields, type Session } from '../src/lib/auth.ts'
+import { SIGNUP_ROLE, USERS_SHEET, userFields, type Session } from '../src/lib/auth.ts'
 import { asObject, ensureAnAdminRemains, isActive, sessionFor, toPublic, validatePassword, validateUserInput } from '../src/lib/rules.ts'
 import {
   DB_PATH,
@@ -144,6 +144,25 @@ export async function authRoutes(req: IncomingMessage, res: ServerResponse, part
       if (users.length > 0) throw new HttpError(409, 'Setup is already complete. Please sign in.')
       const row: Row = { ...input, active: 'Yes', passwordHash: hashPassword(password), lastLogin: now(), createdAt: now(), updatedAt: now() }
       writeUsers(wb, [row])
+      saveWorkbook(wb)
+      return row
+    })
+    setSessionCookie(req, res, makeToken(user.username), SESSION_HOURS * 3600)
+    send(res, 201, sessionFor(user))
+    return true
+  }
+
+  if (area === 'auth' && action === 'signup' && method === 'POST') {
+    const body = asObject(await readBody(req))
+    const input = validateUserInput({ ...body, role: SIGNUP_ROLE }, true)
+    const password = validatePassword(body.password)
+    const user = await serialize(() => {
+      const wb = loadWorkbook()
+      const users = readUsers(wb)
+      if (users.length === 0) throw new HttpError(409, 'Create the first Admin account first.')
+      if (users.some((u) => u.username === input.username)) throw new HttpError(409, `Username ${input.username} is taken`)
+      const row: Row = { ...input, active: 'Yes', passwordHash: hashPassword(password), lastLogin: now(), createdAt: now(), updatedAt: now() }
+      writeUsers(wb, [...users, row])
       saveWorkbook(wb)
       return row
     })

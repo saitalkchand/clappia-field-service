@@ -16,3 +16,6 @@ export const count = <T,>(items: T[], key: (item: T) => string) =>
   }, {})
 
 export const aed = (n: number) => `AED ${n.toLocaleString('en-AE', { maximumFractionDigits: 2 })}`
+
+// Logo files live in public/brand; BASE_URL keeps them working when the app is served from a sub-path.
+export const brandAsset = (file: string) => `${import.meta.env.BASE_URL}brand/${file}`

@@ -1,5 +1,5 @@
-import { SeverityBadge, brandAsset } from '../components/ui.tsx'
-import { aed, count, today } from '../lib/format.ts'
+import { SeverityBadge } from '../components/ui.tsx'
+import { aed, brandAsset, count, today } from '../lib/format.ts'
 import type { Snag } from '../lib/schema.ts'
 import type { PageProps } from './types.ts'
 

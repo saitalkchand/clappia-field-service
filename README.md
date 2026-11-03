@@ -18,6 +18,8 @@ On first start it creates the workbook from `data/seed/field_service_master_data
 
 On first start the login page asks you to **create the first Admin account**. There are no default passwords. The Admin then adds everyone else under **Users & Roles**.
 
+After that, anyone can also use **Create an account** on the sign-in page. Self-registered accounts start as **Viewer** (read-only) until an Admin changes their role.
+
 | Role | Can do |
 |---|---|
 | **Admin** | Everything: manage users, re-import master data, delete records |

@@ -1,7 +1,5 @@
 import { useEffect, useRef, type InputHTMLAttributes, type ReactNode } from 'react'
-
-// Logo files live in public/brand; BASE_URL keeps them working when the app is served from a sub-path.
-export const brandAsset = (file: string) => `${import.meta.env.BASE_URL}brand/${file}`
+import { brandAsset } from '../lib/format.ts'
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return <img className="logo" src={compact ? brandAsset('clappia-mark.svg') : brandAsset('clappia-logo.svg')} alt="Clappia" />

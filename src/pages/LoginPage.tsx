@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { brandAsset } from '../components/ui.tsx'
 import { STATIC_DEMO, api } from '../lib/api.ts'
-import { PASSWORD_MIN, type Session } from '../lib/auth.ts'
+import { PASSWORD_MIN, SIGNUP_ROLE, type Session } from '../lib/auth.ts'
+import { brandAsset } from '../lib/format.ts'
 
 const features = [
   'Snag register with automatic severity by site class',
@@ -17,14 +17,24 @@ export function LoginPage({ setupRequired, onSignedIn }: { setupRequired: boolea
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [signingUp, setSigningUp] = useState(false)
+  // The first-run Admin setup and self sign-up share the "new account" form.
+  const creating = setupRequired || signingUp
+
+  function switchMode(signup: boolean) {
+    setSigningUp(signup)
+    setError('')
+    setConfirm('')
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault()
     setError('')
-    if (setupRequired && password !== confirm) return setError('Passwords do not match')
+    if (creating && password !== confirm) return setError('Passwords do not match')
     setBusy(true)
     try {
-      onSignedIn(setupRequired ? await api.setup({ username, name, password }) : await api.login(username, password))
+      const account = { username, name, password }
+      onSignedIn(setupRequired ? await api.setup(account) : signingUp ? await api.signup(account) : await api.login(username, password))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Sign-in failed')
       setBusy(false)
@@ -50,15 +60,17 @@ export function LoginPage({ setupRequired, onSignedIn }: { setupRequired: boolea
       <section className="login-panel">
         <form className="login-card" onSubmit={submit}>
           <img className="login-card-logo" src={brandAsset('clappia-logo.svg')} alt="Clappia" />
-          <h2>{setupRequired ? 'Create the admin account' : 'Sign in'}</h2>
+          <h2>{setupRequired ? 'Create the admin account' : signingUp ? 'Create your account' : 'Sign in'}</h2>
           <p className="muted">
             {setupRequired
               ? 'No accounts exist yet. This first account gets the Admin role and can add the rest of the team.'
-              : 'Use the account your Admin created for you.'}
+              : signingUp
+                ? `New accounts start as ${SIGNUP_ROLE} (read-only). Ask an Admin to give you more access.`
+                : 'Use your account, or create one if you are new.'}
           </p>
           {STATIC_DEMO && <p className="hint">Demo mode: there is no server. Accounts and records are saved only in this browser.</p>}
 
-          {setupRequired && (
+          {creating && (
             <label className="field">
               <span>Full name</span>
               <input value={name} onChange={(e) => setName(e.target.value)} required autoComplete="name" placeholder="e.g. Jay Puzon Tadina" />
@@ -76,13 +88,13 @@ export function LoginPage({ setupRequired, onSignedIn }: { setupRequired: boolea
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                minLength={setupRequired ? PASSWORD_MIN : undefined}
-                autoComplete={setupRequired ? 'new-password' : 'current-password'}
+                minLength={creating ? PASSWORD_MIN : undefined}
+                autoComplete={creating ? 'new-password' : 'current-password'}
               />
               <button type="button" className="link-button" onClick={() => setShowPassword((v) => !v)} aria-pressed={showPassword}>{showPassword ? 'Hide' : 'Show'}</button>
             </div>
           </label>
-          {setupRequired && (
+          {creating && (
             <label className="field">
               <span>Confirm password</span>
               <input type={showPassword ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} required autoComplete="new-password" />
@@ -92,9 +104,15 @@ export function LoginPage({ setupRequired, onSignedIn }: { setupRequired: boolea
 
           {error && <p className="form-error" role="alert">{error}</p>}
           <button type="submit" className="primary-button login-submit" disabled={busy}>
-            {busy ? 'Please wait…' : setupRequired ? 'Create account & continue' : 'Sign in'}
+            {busy ? 'Please wait…' : creating ? 'Create account & continue' : 'Sign in'}
           </button>
-          {!setupRequired && <p className="login-help muted">Forgot your password? Ask an Admin to reset it.</p>}
+          {!setupRequired && !signingUp && <p className="login-help muted">Forgot your password? Ask an Admin to reset it.</p>}
+          {!setupRequired && (
+            <div className="login-switch">
+              <span>{signingUp ? 'Already have an account?' : 'New to the team?'}</span>
+              <button type="button" className="ghost-button" onClick={() => switchMode(!signingUp)}>{signingUp ? 'Sign in instead' : 'Create an account'}</button>
+            </div>
+          )}
         </form>
       </section>
     </div>

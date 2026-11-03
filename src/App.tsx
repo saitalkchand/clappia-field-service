@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react'
 import './App.css'
-import { Input, Logo, Modal, brandAsset } from './components/ui.tsx'
+import { Input, Logo, Modal } from './components/ui.tsx'
+import { brandAsset } from './lib/format.ts'
 import { ApiError, STATIC_DEMO, api, setUnauthorizedHandler } from './lib/api.ts'
 import { PASSWORD_MIN, type Permission, type Session } from './lib/auth.ts'
 import type { TableName, TableRow } from './lib/schema.ts'

@@ -58,3 +58,6 @@ export type PublicUser = { username: string; name: string; role: Role; active: s
 export type Session = { user: PublicUser; can: Can }
 
 export const PASSWORD_MIN = 8
+
+// Role given to self-registered accounts; an Admin can raise it under Users & Roles.
+export const SIGNUP_ROLE: Role = 'Viewer'

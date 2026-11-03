@@ -1,4 +1,4 @@
-import type { Session } from './auth.ts'
+import { SIGNUP_ROLE, type Session } from './auth.ts'
 import { mastersFromSource, type SourceJson } from './masters.ts'
 import {
   HttpError,
@@ -111,6 +111,16 @@ async function route(parts: string[], method: string, body: Record<string, unkno
     const input = validateUserInput({ ...body, role: 'Admin' }, true)
     const row: Row = { ...input, active: 'Yes', passwordHash: await hashPassword(validatePassword(body.password)), lastLogin: now(), createdAt: now(), updatedAt: now() }
     saveDb({ ...db, users: [row] })
+    startSession(row.username)
+    return ok(sessionFor(row), 201)
+  }
+
+  if (area === 'auth' && action === 'signup' && method === 'POST') {
+    if (db.users.length === 0) throw new HttpError(409, 'Create the first Admin account first.')
+    const input = validateUserInput({ ...body, role: SIGNUP_ROLE }, true)
+    if (db.users.some((u) => u.username === input.username)) throw new HttpError(409, `Username ${input.username} is taken`)
+    const row: Row = { ...input, active: 'Yes', passwordHash: await hashPassword(validatePassword(body.password)), lastLogin: now(), createdAt: now(), updatedAt: now() }
+    saveDb({ ...db, users: [...db.users, row] })
     startSession(row.username)
     return ok(sessionFor(row), 201)
   }
