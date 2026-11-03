@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 40" role="img" aria-label="Clappia">
+  <rect x="33.5" y="8" width="2.5" height="24" rx="1.25" fill="#C4E2F9"/>
+  <rect x="30" y="6" width="2.5" height="28" rx="1.25" fill="#A8D8FA"/>
+  <rect x="3" y="4" width="28" height="32" rx="7" fill="#3599E2"/>
+  <rect x="7" y="15" width="15.5" height="15.5" rx="3.5" fill="#FFFFFF"/>
+  <path d="M18.6 19.6a4.6 4.6 0 1 0 0 6.3" fill="none" stroke="#0CAE5A" stroke-width="3" stroke-linecap="round"/>
+  <text x="46" y="28" font-family="Poppins, 'Segoe UI', Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="0.5" fill="#3599E2">CLAPPIA</text>
+</svg>
