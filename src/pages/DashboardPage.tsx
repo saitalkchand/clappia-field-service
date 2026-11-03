@@ -16,6 +16,7 @@ const icons = {
   pin: 'M12 21s-7-6.5-7-12a7 7 0 0 1 14 0c0 5.5-7 12-7 12zm0-9.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z',
   box: 'M4 7l8-4 8 4v10l-8 4-8-4V7zm0 0 8 4 8-4M12 11v10',
   plus: 'M12 5v14M5 12h14',
+  clock: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zm0-13v4l3 2',
 }
 
 function Icon({ d }: { d: string }) {
@@ -45,6 +46,7 @@ export function DashboardPage({ session, data, go }: PageProps) {
   const units = usage.reduce((sum, u) => sum + (Number(u.qty) || 0), 0)
   const closeRate = pct(closed.length, open.length + closed.length)
   const sitesWithOpen = new Set(open.map((s) => s.siteId)).size
+  const avgAge = open.length ? Math.round(open.reduce((n, s) => n + ageDays(s), 0) / open.length) : 0
 
   // 30-day trend: snags opened (by PM date / created) vs closed (by closing date)
   const start = Date.parse(today()) - (TREND_DAYS - 1) * DAY
@@ -87,6 +89,35 @@ export function DashboardPage({ session, data, go }: PageProps) {
   const topItems = Object.entries(itemTotals).sort((a, b) => b[1].qty - a[1].qty).slice(0, 5)
   const topMax = Math.max(1, ...topItems.map(([, t]) => t.qty))
 
+  // Open snags per assignee (supervisor), busiest first
+  const workload = Object.entries(count(open.filter((s) => s.assigned), (s) => s.assigned))
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+  const workloadMax = Math.max(1, ...workload.map(([, n]) => n))
+  const unassigned = open.filter((s) => !s.assigned).length
+
+  // Latest changes across snags and consumables
+  const activity = [
+    ...snags.map((s) => ({
+      key: `s-${s.sn}`,
+      at: s.updatedAt || s.createdAt,
+      tone: s.status.toUpperCase() === 'CLOSED' ? 'green' : 'blue',
+      title: `${s.status.toUpperCase() === 'CLOSED' ? 'Closed' : s.createdAt === s.updatedAt ? 'Opened' : 'Updated'} snag at ${s.siteId}`,
+      detail: `${s.classification} — ${s.snag}`,
+      by: s.status.toUpperCase() === 'CLOSED' ? s.closedBy : s.openedBy,
+      page: 'snags' as const,
+    })),
+    ...usage.map((u) => ({
+      key: `u-${u.entryId}`,
+      at: u.updatedAt || u.createdAt,
+      tone: 'sky',
+      title: `${u.qty} × ${u.item}`,
+      detail: `Used at ${u.siteId}${u.amount ? ` · ${aed(Number(u.amount))}` : ''}`,
+      by: u.technician,
+      page: 'consumables' as const,
+    })),
+  ].filter((a) => a.at).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 8)
+
   const headline = open.length === 0
     ? 'No open snags right now.'
     : `${open.length} open snag${open.length > 1 ? 's' : ''} across ${sitesWithOpen} site${sitesWithOpen > 1 ? 's' : ''}${critical.length ? ` — ${critical.length} critical ${critical.length > 1 ? 'need' : 'needs'} attention.` : '.'}`
@@ -111,7 +142,7 @@ export function DashboardPage({ session, data, go }: PageProps) {
           <span className="stat-icon blue"><Icon d={icons.alert} /></span>
           <span className="stat-label">Open snags</span>
           <strong>{open.length}</strong>
-          <span className="stat-foot">{critical.length > 0 ? <><i className="dot sev-critical" />{critical.length} critical</> : 'None critical'}</span>
+          <span className="stat-foot">{critical.length > 0 ? <><i className="dot sev-critical" />{critical.length} critical</> : 'None critical'}{open.length > 0 && ` · avg ${avgAge}d open`}</span>
         </button>
         <button type="button" className="stat" onClick={() => go('snags', { status: 'CLOSED' })}>
           <span className="stat-icon green"><Icon d={icons.check} /></span>
@@ -230,7 +261,7 @@ export function DashboardPage({ session, data, go }: PageProps) {
           <header className="panel-header"><div><p className="eyebrow">Open snags</p><h2>By region</h2></div></header>
           <div className="region-list">
             {regions.map((r) => (
-              <button key={r.code} type="button" className="region-row" onClick={() => go('snags', { status: 'OPEN', search: '' })}>
+              <button key={r.code} type="button" className="region-row" onClick={() => go('snags', { status: 'OPEN', search: r.code })}>
                 <span className="region-code">{r.code}</span>
                 <span className="region-body">
                   <span className="region-name">{r.name}</span>
@@ -247,7 +278,7 @@ export function DashboardPage({ session, data, go }: PageProps) {
         </div>
       </section>
 
-      <section className="dash-row">
+      <section className="dash-row three">
         <div className="panel">
           <header className="panel-header"><div><p className="eyebrow">Open snags</p><h2>Top classifications</h2></div></header>
           <div className="legend">
@@ -289,6 +320,48 @@ export function DashboardPage({ session, data, go }: PageProps) {
             </ol>
           )}
         </div>
+
+        <div className="panel">
+          <header className="panel-header">
+            <div><p className="eyebrow">Open snags by assignee</p><h2>Team workload</h2></div>
+            <button type="button" className="ghost-button" onClick={() => go('teams')}>Teams</button>
+          </header>
+          {workload.length === 0 ? <p className="muted chart-empty">{open.length ? 'No open snags are assigned yet.' : 'No open snags.'}</p> : (
+            <ul className="workload">
+              {workload.map(([name, n]) => (
+                <li key={name}>
+                  <button type="button" onClick={() => go('snags', { status: 'OPEN', search: name })}>
+                    <span className="avatar small" aria-hidden="true">{name.split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join('')}</span>
+                    <span className="workload-body">
+                      <span className="workload-name">{name}</span>
+                      <span className="workload-bar"><span style={{ width: `${(n / workloadMax) * 100}%` }} /></span>
+                    </span>
+                    <b>{n}</b>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {unassigned > 0 && <p className="workload-note"><i className="dot sev-major" />{unassigned} open snag{unassigned > 1 ? 's' : ''} not assigned to anyone</p>}
+        </div>
+      </section>
+
+      <section className="panel">
+        <header className="panel-header"><div><p className="eyebrow">Latest changes</p><h2>Recent activity</h2></div></header>
+        {activity.length === 0 ? <p className="muted chart-empty">Nothing logged yet.</p> : (
+          <ol className="activity">
+            {activity.map((a) => (
+              <li key={a.key}>
+                <span className={`activity-dot ${a.tone}`} aria-hidden="true" />
+                <button type="button" className="activity-body" onClick={() => go(a.page)}>
+                  <strong>{a.title}</strong>
+                  <span className="activity-detail">{a.detail}</span>
+                  <small><Icon d={icons.clock} />{a.at.slice(0, 16)}{a.by && ` · ${a.by}`}</small>
+                </button>
+              </li>
+            ))}
+          </ol>
+        )}
       </section>
     </div>
   )
